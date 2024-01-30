@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :cards
+  resources :topics
   resources :apartments
   devise_for :users,
     path: '',
