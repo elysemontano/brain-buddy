@@ -82,4 +82,185 @@ RSpec.describe "Topics", type: :request do
       expect(topics).to be_empty
     end
   end
+
+
+  #__________VALIDATIONS________
+
+
+  #_________CREATE VALIDATIONS______________
+  describe "cannot create a topic without valid attributes" do
+    it "doesn't create a topic without a name" do
+      topic_params = {
+        topic: { 
+          description: 'Begin your journey in JavaScript with data types, variables and built in methods',
+          user_id: user.id
+        }
+      }
+        post '/topics', params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['name']).to include "can't be blank"
+    end
+
+    it "doesn't create a topic without a description" do
+      topic_params = {
+        topic: { 
+          name: "JavaScript Intro",
+          user_id: user.id
+        }
+      }
+        post '/topics', params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['description']).to include "can't be blank"
+    end
+
+    it "doesn't create a topic without a user id" do
+      topic_params = {
+        topic: { 
+          name: "JavaScript Intro",
+          description: "Begin your journey in JavaScript with data types, variables and built in methods"
+        }
+      }
+        post '/topics', params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['user_id']).to include "can't be blank"
+    end
+
+    it "doesn't create a topic if name length is less than 3" do
+      topic_params = {
+        topic: { 
+          name: "Ja",
+          description: "Begin your journey in JavaScript with data types, variables and built in methods"
+        }
+      }
+        post '/topics', params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['name']).to include "is too short (minimum is 3 characters)"
+    end
+
+    it "doesn't create a topic if name length is more than 50" do
+      topic_params = {
+        topic: { 
+          name: "JavaScript Intro and Foundations are totally awesome!!!!!!",
+          description: "Begin your journey in JavaScript with data types, variables and built in methods"
+        }
+      }
+        post '/topics', params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['name']).to include "is too long (maximum is 50 characters)"
+    end
+
+    it "doesn't create a topic if description length is less than 10" do
+      topic_params = {
+        topic: { 
+          name: "JavaScript Intro",
+          description: "Begin"
+        }
+      }
+        post '/topics', params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['description']).to include "is too short (minimum is 10 characters)"
+    end
+  end
+
+
+   #_________UPDATE VALIDATIONS______________
+   describe "cannot update a topic without valid attributes" do
+    it "doesn't update a topic without a name" do
+      topic = user.topics.create(name: 'JavaScript Intro', description: 'Begin your journey in JavaScript with data types, variables and built in methods')
+
+      topic_params = {
+        topic: { 
+          name: '',
+          description: 'Begin your journey in JavaScript with data types, variables and built in methods',
+          user_id: user.id
+        }
+      }
+        patch "/topics/#{topic.id}", params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['name']).to include "can't be blank"
+    end
+
+
+    it "doesn't update a topic without a description" do
+      topic = user.topics.create(name: 'JavaScript Intro', description: 'Begin your journey in JavaScript with data types, variables and built in methods')
+
+      topic_params = {
+        topic: { 
+          name: 'JavaScript Intro',
+          description: '',
+          user_id: user.id
+        }
+      }
+        patch "/topics/#{topic.id}", params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['description']).to include "can't be blank"
+    end
+
+    it "doesn't update a topic if name length is less than 3" do
+      topic = user.topics.create(name: 'JavaScript Intro', description: 'Begin your journey in JavaScript with data types, variables and built in methods')
+
+      topic_params = {
+        topic: { 
+          name: 'Ja',
+          description: 'Begin your journey in JavaScript with data types, variables and built in methods',
+          user_id: user.id
+        }
+      }
+        patch "/topics/#{topic.id}", params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['name']).to include "is too short (minimum is 3 characters)"
+    end
+
+    it "doesn't update a topic if name length is more than 50" do
+      topic = user.topics.create(name: 'JavaScript Intro', description: 'Begin your journey in JavaScript with data types, variables and built in methods')
+
+      topic_params = {
+        topic: { 
+          name: 'JavaScript Intro and Foundations are totally awesome!!!!!!',
+          description: 'Begin your journey in JavaScript with data types, variables and built in methods',
+          user_id: user.id
+        }
+      }
+        patch "/topics/#{topic.id}", params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['name']).to include "is too long (maximum is 50 characters)"
+    end
+
+    it "doesn't update a topic if description length is less than 10" do
+      topic = user.topics.create(name: 'JavaScript Intro', description: 'Begin your journey in JavaScript with data types, variables and built in methods')
+
+      topic_params = {
+        topic: { 
+          name: 'JavaScript Intro',
+          description: 'Begin',
+          user_id: user.id
+        }
+      }
+        patch "/topics/#{topic.id}", params: topic_params
+        expect(response.status).to eq 422
+
+        topic = JSON.parse(response.body) 
+        expect(topic['description']).to include "is too short (minimum is 10 characters)"
+    end
+  end
 end
