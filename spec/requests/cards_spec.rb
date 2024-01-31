@@ -90,4 +90,181 @@ RSpec.describe "Cards", type: :request do
       expect(cards).to be_empty
     end
   end
+
+
+
+   #__________VALIDATIONS________
+
+
+  #_________CREATE VALIDATIONS______________
+  describe "cannot create a card without valid attributes" do
+    it "doesn't create a card without a question" do
+      card_params = {
+        card: { 
+          user_id: user.id,
+          topic_id: topic.id,
+          answer: "Object Oriented Programming is a programming paradigm that organizes data into a format that allows each instance to be an object"
+        }
+      }
+        post '/cards', params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['question']).to include "can't be blank"
+    end
+
+    it "doesn't create a card without an answer" do
+      card_params = {
+        card: { 
+          user_id: user.id,
+          topic_id: topic.id,
+          question: "What is IRB",
+        }
+      }
+        post '/cards', params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['answer']).to include "can't be blank"
+    end
+
+    it "doesn't create a card without a user id" do
+      card_params = {
+        card: { 
+          topic_id: topic.id,
+          question: "What is IRB",
+          answer: "Interactive Ruby shell is a REPL environment where we can interact with Ruby code in the terminal"
+        }
+      }
+        post '/cards', params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['user_id']).to include "can't be blank"
+    end
+
+    it "doesn't create a card without a topic id" do
+      card_params = {
+        card: { 
+          user_id: user.id,
+          question: "What is IRB",
+          answer: "Interactive Ruby shell is a REPL environment where we can interact with Ruby code in the terminal"
+        }
+      }
+        post '/cards', params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['topic_id']).to include "can't be blank"
+    end
+
+    it "doesn't create a card if question length is less than 5" do
+      card_params = {
+        card: { 
+          user_id: user.id,
+          topic_id: topic.id,
+          question: "Wha",
+          answer: "Interactive Ruby shell is a REPL environment where we can interact with Ruby code in the terminal"
+        }
+      }
+        post '/cards', params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['question']).to include "is too short (minimum is 5 characters)"
+    end
+
+    it "doesn't create a card if answer length is less than 5" do
+      card_params = {
+        card: { 
+          user_id: user.id,
+          topic_id: topic.id,
+          question: "What is IRB",
+          answer: "Int"
+        }
+      }
+        post '/cards', params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['answer']).to include "is too short (minimum is 5 characters)"
+    end
+  end
+
+
+  #  #_________UPDATE VALIDATIONS______________
+   describe "cannot update a card without valid attributes" do
+    it "doesn't update a card without a question" do
+      card = user.cards.create(topic_id: topic.id, question: "What is OOP?", answer: "Object Oriented Programming is a programming paradigm that organizes data into a format that allows each instance to be an object")
+
+      card_params = {
+        card: {
+          question: "",
+          answer: "Number, String, Boolean, Undefined, Null, and Symbol", 
+          topic_id: topic.id,
+          user_id: user.id
+        }
+      }
+        patch "/cards/#{card.id}", params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['question']).to include "can't be blank"
+    end
+
+
+    it "doesn't update a card without an answer" do
+      card = user.cards.create(topic_id: topic.id, question: "What is OOP?", answer: "Object Oriented Programming is a programming paradigm that organizes data into a format that allows each instance to be an object")
+
+      card_params = {
+        card: {
+          question: "What are the six primitive data types?", 
+          answer: "", 
+          topic_id: topic.id,
+          user_id: user.id
+        }
+      }
+        patch "/cards/#{card.id}", params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['answer']).to include "can't be blank"
+    end
+
+    it "doesn't update a card if question length is less than 5" do
+      card = user.cards.create(topic_id: topic.id, question: "What is OOP?", answer: "Object Oriented Programming is a programming paradigm that organizes data into a format that allows each instance to be an object")
+
+      card_params = {
+        card: {
+          question: "Wha", 
+          answer: "Number, String, Boolean, Undefined, Null, and Symbol", 
+          topic_id: topic.id,
+          user_id: user.id
+        }
+      }
+        patch "/cards/#{card.id}", params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['question']).to include "is too short (minimum is 5 characters)"
+    end
+
+    it "doesn't update a card if answer length is less than 5" do
+      card = user.cards.create(topic_id: topic.id, question: "What is OOP?", answer: "Object Oriented Programming is a programming paradigm that organizes data into a format that allows each instance to be an object")
+
+      card_params = {
+        card: {
+          question: "What are the six primitive data types?", 
+          answer: "Num", 
+          topic_id: topic.id,
+          user_id: user.id
+        }
+      }
+        patch "/cards/#{card.id}", params: card_params
+        expect(response.status).to eq 422
+
+        card = JSON.parse(response.body) 
+        expect(card['answer']).to include "is too short (minimum is 5 characters)"
+    end
+  end
 end
