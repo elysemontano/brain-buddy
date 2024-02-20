@@ -1,8 +1,9 @@
 class TopicsController < ApplicationController
   def index
-    topics = Topic.all 
-    render json: topics
+    topics = Topic.includes(:cards).all
+    render json: topics, include: :cards
   end
+  
 
   def create 
     topic = Topic.create(topic_params)
