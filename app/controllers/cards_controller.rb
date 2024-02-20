@@ -1,6 +1,7 @@
 class CardsController < ApplicationController
   def index
-    cards = Card.all 
+    topic = Topic.find(params[:id])
+    cards = topic.cards.all 
     render json: cards
   end
 
